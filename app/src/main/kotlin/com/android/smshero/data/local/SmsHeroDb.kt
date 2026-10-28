@@ -23,8 +23,8 @@ interface OrderDao {
 }
 
 class OrderStatusConverter {
-    fun toStatus(val: String) = OrderStatus.valueOf(val)
-    fun fromStatus(val: OrderStatus) = val.name
+    fun toStatus(value: String) = OrderStatus.valueOf(value)
+    fun fromStatus(value: OrderStatus) = value.name
 }
 
 @Database(entities = [Order::class], version = 1, exportSchema = false)
@@ -34,8 +34,9 @@ abstract class SmsHeroDb : RoomDatabase() {
     companion object {
         fun build(context: Context, prefs: EncryptedPrefs): SmsHeroDb = try {
             val key = prefs.getDatabaseKey()
+            val factory = net.zetetic.database.sqlcipher.SupportFactory(key.toByteArray())
             Room.databaseBuilder(context, SmsHeroDb::class.java, "smshero_orders")
-                .openHelperFactory { sqliteDatabase -> net.zetetic.database.sqlcipher.SQLiteOpenHelper(context, sqliteDatabase, null, key.toByteArray()) }
+                .openHelperFactory(factory)
                 .build()
         } catch (e: Exception) {
             Room.databaseBuilder(context, SmsHeroDb::class.java, "smshero_orders_fallback").build()
