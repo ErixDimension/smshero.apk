@@ -8,7 +8,8 @@ class OrderRepository {
     private val legacy = ApiClientFactory.legacyApi()
     private val v1 = ApiClientFactory.v1Api()
 
-    suspend fun buyOrder(apiKey: String, service: String, country: Int, quantity: Int, price: Double, operator: String?): Result<List<Order>> = try {
+    suspend fun buyOrder(apiKey: String, service: String, country: Int, quantity: Int, price: Double, operator: String?): Result<List<Order>> {
+        return try {
         val authHeader = "ApiKey $apiKey"
         val body = mapOf(
             "service" to service,
@@ -40,11 +41,15 @@ class OrderRepository {
             return Result.success(orders)
         }
         Result.failure(Exception("HTTP ${resp.code()}"))
-    } catch (e: Exception) { Result.failure(e) }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-    suspend fun pollOrders(apiKey: String, service: String, country: Int): Result<List<Order>> = try {
-        val authHeader = "ApiKey $apiKey"
-        val resp = v1.getActiveActivations(authHeader, service, country.toString())
+    suspend fun pollOrders(apiKey: String, service: String, country: Int): Result<List<Order>> {
+        return try {
+            val authHeader = "ApiKey $apiKey"
+            val resp = v1.getActiveActivations(authHeader, service, country.toString())
         if (resp.isSuccessful && resp.body() != null) {
             val data = resp.body() as? Map<*, *> ?: return Result.failure(Exception("Invalid"))
             val orders = (data["data"] as? List<*>)?.mapNotNull { o ->
@@ -58,6 +63,7 @@ class OrderRepository {
                     country = m["country"].toString().toIntOrNull() ?: 0,
                     countryName = "",
                     countryPhoneCode = m["countryPhoneCode"]?.toString() ?: "",
+                    price = m["price"]?.toString()?.toDoubleOrNull() ?: 0.0,
                     status = if (otp?.get("smsCode") != null) OrderStatus.OTP_RECEIVED else OrderStatus.WAITING,
                     smsCode = otp?.get("smsCode")?.toString(),
                     smsText = otp?.get("smsText")?.toString()
@@ -66,7 +72,10 @@ class OrderRepository {
             return Result.success(orders)
         }
         Result.failure(Exception("HTTP ${resp.code()}"))
-    } catch (e: Exception) { Result.failure(e) }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
     suspend fun finishOrder(apiKey: String, orderId: String): Result<Unit> = try {
         val authHeader = "ApiKey $apiKey"

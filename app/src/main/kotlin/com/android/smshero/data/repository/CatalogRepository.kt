@@ -47,7 +47,7 @@ class CatalogRepository {
             val resp = legacy.getOperators(apiKey, country = country)
             if (resp.isSuccessful && resp.body() != null) {
                 val data = resp.body() as? Map<*, *> ?: return Result.success(listOf(Operator("Semua operator", true)))
-                val ops = (data["countryOperators"] as? Map<*, *>)?.get(country.toString()) as? List<*> ?: emptyList()
+                val ops: List<*> = (data["countryOperators"] as? Map<*, *>)?.get(country.toString()) as? List<*> ?: emptyList<Any>()
                 val result = listOf(Operator("Semua operator", true)) + ops.mapNotNull { it?.toString()?.let { o -> Operator(o) } }
                 Result.success(result)
             } else {
@@ -65,7 +65,7 @@ class CatalogRepository {
             if (resp.isSuccessful && resp.body() != null) {
                 val data = resp.body() as? Map<*, *> ?: return Result.failure(Exception("Invalid"))
                 val map = ((data["data"] as? Map<*, *>)?.get(service) as? Map<*, *>)?.get(country.toString()) as? Map<*, *> ?: return Result.failure(Exception("No data"))
-                val priceMap = map["map"] as? Map<*, *> ?: emptyMap()
+                val priceMap: Map<*, *> = map["map"] as? Map<*, *> ?: emptyMap<Any, Any>()
                 return Result.success(priceMap.map { (k, v) -> PriceVariant(k.toString().toDouble(), v.toString().toInt()) }.sortedBy { it.price })
             }
             val resp2 = legacy.getPrices(apiKey, service = service, country = country)
