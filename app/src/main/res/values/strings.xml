@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SMSHERO Terang Bulan</string>
+    <string name="pick_service">Pilih Layanan</string>
+    <string name="pick_country">Pilih Negara</string>
+    <string name="pick_operator">Pilih Operator</string>
+    <string name="pick_variant">Varian Harga</string>
+    <string name="balance">Saldo: $</string>
+    <string name="confirm">Konfirmasi</string>
+    <string name="cancel">Batal</string>
+</resources>
