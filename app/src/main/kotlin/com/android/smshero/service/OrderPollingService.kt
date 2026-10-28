@@ -8,7 +8,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.work.*
-import com.android.smshero.data.api.ApiClient
+import com.android.smshero.api.ApiClient
 import com.android.smshero.data.local.EncryptedPrefs
 import com.android.smshero.data.local.SmsHeroDb
 import com.android.smshero.data.model.OrderStatus

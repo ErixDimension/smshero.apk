@@ -34,7 +34,7 @@ abstract class SmsHeroDb : RoomDatabase() {
     companion object {
         fun build(context: Context, prefs: EncryptedPrefs): SmsHeroDb = try {
             val key = prefs.getDatabaseKey()
-            val factory = net.zetetic.database.sqlcipher.SupportFactory(key.toByteArray())
+            val factory = net.sqlcipher.database.SupportFactory(key.toByteArray())
             Room.databaseBuilder(context, SmsHeroDb::class.java, "smshero_orders")
                 .openHelperFactory(factory)
                 .build()
