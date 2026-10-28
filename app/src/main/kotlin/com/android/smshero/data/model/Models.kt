@@ -14,7 +14,6 @@ data class Country(val id: Int, val eng: String, val rus: String = "", val visib
 
 data class Operator(val name: String, val isAny: Boolean = false)
 data class PriceVariant(val price: Double, val count: Int, val tier: Int = 1, val totalTiers: Int = 1)
-
 enum class OrderStatus { WAITING, OTP_RECEIVED, FINISHED, CANCELED, ERROR }
 
 @Entity(tableName = "orders")

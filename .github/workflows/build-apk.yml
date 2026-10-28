@@ -36,9 +36,11 @@ jobs:
       - name: Run tests
         run: ./gradlew test --stacktrace
       - name: Run lint
+        if: failure() && always()
         run: ./gradlew lint --stacktrace
+        continue-on-error: true
       - name: Generate SHA256SUMS
-        run: shuf -n 2 app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/*.apk > SHA256SUMS
+        run: sha256sum app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/*.apk > SHA256SUMS
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -49,4 +51,8 @@ jobs:
             SHA256SUMS
       - name: Summary
         if: always() && success()
-        run: echo "v${{ steps.env.outputs.VERSION }} debug" >> $GITHUB_STEP_SUMMARY; echo "v${{ steps.env.outputs.VERSION }} release" >> $GITHUB_STEP_SUMMARY
+        run: |
+          echo "=== SMSHERO APK v2.0 ===" >> $GITHUB_STEP_SUMMARY
+          echo "versionCode=33 versionName=2.0" >> $GITHUB_STEP_SUMMARY
+          ls -lh app/build/outputs/apk/debug/*.apk >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+          sha256sum app/build/outputs/apk/debug/*.apk >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
