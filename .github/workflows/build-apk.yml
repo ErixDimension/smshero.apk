@@ -1,0 +1,52 @@
+name: Build APK v2.0
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
+          accept-android-sdk-licenses: true
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+      - name: Build Debug
+        run: ./gradlew assembleDebug --stacktrace
+      - name: Build Release
+        run: ./gradlew assembleRelease --stacktrace
+      - name: Run tests
+        run: ./gradlew test --stacktrace
+      - name: Run lint
+        run: ./gradlew lint --stacktrace
+      - name: Generate SHA256SUMS
+        run: shuf -n 2 app/build/outputs/apk/debug/*.apk app/build/outputs/apk/release/*.apk > SHA256SUMS
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smshero-apk-v2.0
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/release/*.apk
+            SHA256SUMS
+      - name: Summary
+        if: always() && success()
+        run: echo "v${{ steps.env.outputs.VERSION }} debug" >> $GITHUB_STEP_SUMMARY; echo "v${{ steps.env.outputs.VERSION }} release" >> $GITHUB_STEP_SUMMARY
