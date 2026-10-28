@@ -61,7 +61,8 @@ jobs:
       run: |
         set -euo pipefail
         APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
-        APP_ID=$(aapt dump badging "$APK_PATH" | grep "package: name=" | sed "s/.*name='\([^']*\)'.*/\1/")
+        AAPT=$(find "$ANDROID_HOME/build-tools" -name aapt -type f | sort | tail -1)
+        APP_ID=$("$AAPT" dump badging "$APK_PATH" | grep "package: name=" | sed "s/.*name='\([^']*\)'.*/\1/")
         echo "Application ID: $APP_ID"
         if [ "$APP_ID" != "com.android.smshero" ]; then
           echo "ERROR: Expected com.android.smshero, got $APP_ID"
@@ -72,7 +73,8 @@ jobs:
       run: |
         set -euo pipefail
         APK_PATH="app/build/outputs/apk/debug/app-debug.apk"
-        apksigner verify --verbose "$APK_PATH"
+        APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort | tail -1)
+        "$APKSIGNER" verify --verbose "$APK_PATH"
         
     - name: Calculate SHA-256
       run: |
