@@ -6,28 +6,40 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val SmsHeroDarkColors = darkColorScheme(
-    primary = RazerGreenBright,
-    onPrimary = BlackBg,
-    secondary = RazerGreenDark,
-    background = BlackBg,
-    surface = Color(0xFF0A0A0A),
-    onSurface = RazerGreen,
+private val SmsHeroLightScheme = lightColorScheme(
+    primary = SmsBlueLight,
+    onPrimary = SmsLightBackground,
+    secondary = SmsBlueDark,
+    background = SmsLightBackground,
+    surface = SmsLightSurface,
+    onSurface = SmsLightText,
+    surfaceVariant = SmsLightBorder,
+    outline = SmsLightBorder,
+    error = SmsError,
+    onError = SmsLightBackground
 )
 
-private val SmsHeroLightColors = lightColorScheme(
-    primary = RazerGreenDark,
-    onPrimary = WhiteBg,
-    secondary = Color(0xFF1A1A1A),
-    background = WhiteBg,
-    surface = Color.White,
-    onSurface = Color(0xFF1A1A1A),
+private val SmsHeroDarkScheme = darkColorScheme(
+    primary = SmsBlueDark,
+    onPrimary = SmsLightBackground,
+    secondary = SmsBlueDark,
+    background = SmsDarkBackground,
+    surface = SmsDarkSurface,
+    onSurface = SmsDarkText,
+    surfaceVariant = SmsDarkBorder,
+    outline = SmsDarkBorder,
+    error = Color(0xFFFF3B30),
+    onError = SmsLightBackground
 )
 
 @Composable
-fun SmsHeroTheme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
+fun SmsHeroTheme(
+    darkTheme: Boolean = false,
+    content: @Composable () -> Unit
+) {
     MaterialTheme(
-        colorScheme = if (darkTheme) SmsHeroDarkColors else SmsHeroLightColors,
-        content = content,
+        colorScheme = if (darkTheme) SmsHeroDarkScheme else SmsHeroLightScheme,
+        typography = SmsHeroTypography,
+        content = content
     )
 }

@@ -1,43 +1,25 @@
-# DECISIONS.md — SMSHERO v2.0 Kotlin migration decisions
+# DECISIONS.md — SMSHERO v2.0
 
-> Maintained during full autonomous execution. Format per section.
+## Network
+- OkHttp `4.11.0` remains primary version.
+- Added `com.squareup.okhttp3:okhttp-dnsoverhttps:4.11.0`, synchronized with OkHttp.
+- Both API clients use Cloudflare DoH `https://1.1.1.1/dns-query`, IPv6 disabled.
+- Both API clients force Chrome Android User-Agent to satisfy HeroSMS Cloudflare behavior.
+- API keys remain in encrypted preferences and are never logged.
 
-## [Global] Signing
-- Pilihan: Debug signing for both debug & release build types
-- Alasan: APK sideload-only (not Play Store); no upload key needed; minify rules unverified
-- Alternatif yang ditolak: production keystore (requires user key), unsigned release
-- Risiko: release APK debuggable, sideload OK
+## Auth flow
+- Empty key opens Modern Neon login.
+- Stored key opens dashboard through `EncryptedPrefs.apiKey` StateFlow.
+- Logout removes only API key and returns to login.
+- No reflection or duplicated navigation state.
 
-## [Global] Minify / R8
-- Pilihan: `isMinifyEnabled = false`, `isShrinkResources = false` for both types
-- Alasan: proguard-rules.pro belum diverifikasi
-- Alternatif yang ditolak: `true` with verified rules
-- Risiko: besar APK; tidak ada pemotongan kode/resource
+## Polling
+- Foreground Service owns polling lifecycle.
+- Active order IDs are represented by Room orders.
+- One Coroutine Job per order ID in a process-local `ConcurrentHashMap`; repeated starts reuse existing Job.
+- Terminal status or expiry cancels that order Job. Poll interval is 5 seconds.
+- Service never fabricates OTP data. Provider response must update Room before UI reports OTP received.
+- WorkManager is not used as a 5-second timer; Android WorkManager minimum periodic interval is unsuitable.
 
-## [Global] Room encryption
-- Pilihan: `net.zetetic:android-database-sqlcipher:4.5.4` + key from EncryptedSharedPreferences
-- Alasan: blueprint menuntut encrypted DB, fallback private-dir laporan
-- Alternatif yang ditolak: plaintext Room (external storage forbidden)
-- Risiko: jika dependency conflict → fallback private-dir + laporan di final report
-
-## [Global] GitHub Actions
-- Workflow name: `android.yml` (single workflow, migrated later if blueprint needs)
-- Branch target: target `master` (current repo default)
-- CI failure on 4b3e695: missing `[main]` in trigger — fixed
-- gh CLI now installed v2.46.0 (apt package)
-- Download script uses curl + GitHub API fallback
-
-## [Global] Kotlin
-- Version: 1.9.10 (existing), JVM target 17 (matches compileOptions)
-- Compose compiler extension: 1.5.3
-
-## [Step 1] Gradle setup
-- Confirmed all required deps present in debugCompileClasspath
-- assembleDebug failed at Android SDK license — CI has SDK pre-installed
-- Commit 49f20e8 pushed; CI will run on it after trigger fix
-
-## [CI Investigation]
-- Commit 4b3e695 FAILURE: repo actions/runs list shows that run existed, cause unknown
-- Root cause hypothesis: workflow trigger expects `main` but repo is on `master` → no run triggered after push; failure was earlier/different
-- Fix: change trigger to `[master]`, set `workflow_dispatch`
-- After fix: push, poll via API until completed-success
+## Build limitation
+- Local environment has no Java/JAVA_HOME, so local Gradle verification is blocked. CI remains required build authority.

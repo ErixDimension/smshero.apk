@@ -16,6 +16,7 @@ import androidx.room.Delete
 interface OrderDao {
     @Insert suspend fun insert(order: Order)
     @Query("SELECT * FROM orders WHERE status != 'FINISHED' AND status != 'CANCELED'") suspend fun getActive(): List<Order>
+    @Query("SELECT * FROM orders WHERE id = :id LIMIT 1") suspend fun getById(id: String): Order?
     @Query("SELECT * FROM orders ORDER BY boughtAt DESC LIMIT 20") suspend fun getRecent(): List<Order>
     @Query("UPDATE orders SET smsCode = :sms, smsText = :text, status = :status WHERE id = :id") suspend fun updateOtp(id: String, sms: String?, text: String?, status: String)
     @Query("UPDATE orders SET status = :status WHERE id = :id") suspend fun updateStatus(id: String, status: String)

@@ -23,6 +23,8 @@ import com.android.smshero.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.android.smshero.data.local.EncryptedPrefs
+import com.android.smshero.navigation.Routes
 
 @Composable
 fun ApiKeyInputScreen(nav: NavController) {
@@ -47,9 +49,12 @@ fun ApiKeyInputScreen(nav: NavController) {
             if (key.trim().isEmpty()) { error = "API Key tidak boleh kosong"; return@Button }
             loading = true
             scope.launch {
-                val result = withContext(Dispatchers.IO) { ApiClient().getBalance(key.trim()) }
+                val result = withContext(Dispatchers.IO) { ApiClient().verifyApiKey(key.trim()) }
                 loading = false
-                result.fold({ prefs.saveApiKey(key.trim()); nav.navigate("pick_service") }, { error = "API Key tidak valid atau server gagal" })
+                result.fold({
+                    prefs.saveApiKey(key.trim())
+                    nav.navigate(Routes.dashboard) { popUpTo(Routes.apiKey) { inclusive = true } }
+                }, { error = "API Key tidak valid atau server gagal" })
             }
         }, enabled = !loading, colors = ButtonDefaults.buttonColors(containerColor = RazerGreenDark, contentColor = BlackBg), modifier = Modifier.fillMaxWidth().padding(top = 24.dp), shape = RoundedCornerShape(4.dp)) {
             if (loading) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = BlackBg) else Text("LOGIN / SUBMIT", fontWeight = FontWeight.Bold)
