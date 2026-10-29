@@ -23,7 +23,6 @@ import com.android.smshero.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.android.smshero.data.local.EncryptedPrefs
 import com.android.smshero.navigation.Routes
 
 @Composable
